@@ -54,6 +54,15 @@
 - Như vậy, thư mục `Gifts` của web sẽ có 3 cột. Sau khi biết được số cột, tôi sẽ dùng UNION attack với câu lệnh là ` ' UNION SELECT NULL,NULL,NULL-- ` và đã giải được chall
 <img width="1917" height="1036" alt="image" src="https://github.com/user-attachments/assets/aeaa8fc4-6f31-4d37-8733-b12fa10d27d0" />
 
+### 4. Lab: SQL injection UNION attack, finding a column containing text
+- Đề bài yêu cầu ta tìm cột có chứa văn bản bằng UNION attack. Trước hết ta cần phải xác định số cột có trong các thư mục. Thư mục mà tôi lựa chọn ở đây là `Lifestyle`. Để làm được điều này, tôi sẽ sử dụng phương pháp thứ nhất đó là dùng `' ORDER BY N--`. Sau khi tiến hành thì tôi biết được thư mục `Lifestyle` có 3 cột.
+<img width="1917" height="796" alt="image" src="https://github.com/user-attachments/assets/f3db5e0d-344b-49af-bb11-c4fd57c61ddf" />
+- Sau khi đã biết được số cột, tôi sẽ tiến hành dùng kĩ thuật UNION attack thông qua `' UNION SELECT `. Vì ở đây có 3 cột nên tôi sẽ chọn hai giá trị `null` và một giá trị văn bản. Giá trị văn bản ở đây mà để bài yêu cầu là `RptblS`
+  <img width="1917" height="205" alt="image" src="https://github.com/user-attachments/assets/c7505307-81b3-45dc-b294-2bd660b1de42" />
+- Vậy nên tôi sẽ sử dụng `' UNION SELECT 'RptblS',NULL,NULL--` và đảo vị trí của `RptblS` để xác định xem cột nào sẽ chứa chuỗi văn bản này. Và sau khi thử thì tôi đã biết được chuỗi văn bản cần tìm nằm ở cột thứ 2
+  <img width="1916" height="1077" alt="image" src="https://github.com/user-attachments/assets/200628f9-3972-4d2e-915e-d336a91944d2" />
+
+
 
 
 
