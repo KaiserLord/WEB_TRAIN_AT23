@@ -86,8 +86,31 @@
 <img width="1487" height="676" alt="image" src="https://github.com/user-attachments/assets/5990db20-af12-45f2-96d9-ddfe0e10c305" />
 
 - Sau khi làm xong, tôi nhận được tên đăng nhập và mật khẩu của administrator. Giờ thì lấy hai dữ kiện này và đăng nhập vào trang web thôi
+### 6.Lab: SQL injection UNION attack, retrieving multiple values in a single column
+- Vẫn như các bài lab trước, các bộ lọc thư mục đều rất dễ bị khai thác bởi SQL Injection, vì thế bạn hãy chọn một thư mục bất kì sau đó dùng `'` để kiểm tra xem ứng dụng có bị SQL Injection hay không
+<img width="1353" height="426" alt="image" src="https://github.com/user-attachments/assets/4a1cd490-dd06-4c2d-8f70-8bb4c8f68ec5" />
 
+- Như vậy có thể xác định rằng trang web có thể bị tấn công bởi SQL Injection. Vẫn như thường lệ, ta phải xác định xem có bao nhiêu cột trong một thư mục và kiểu dữ liệu được dùng trong các cột đó
+  <img width="1537" height="1012" alt="image" src="https://github.com/user-attachments/assets/01ea0f41-1be7-4956-90fc-8e9491c7a485" />
+
+- Cột thứ nhất là cột không được hiển thị vì nó ko sắp xếp bất cứ thứ gì theo thứ tự cả. Do đó nó không giúp chúng ta hiển thị tên người dùng và mật khẩu
+  <img width="1495" height="963" alt="image" src="https://github.com/user-attachments/assets/dee132d3-3c8c-4e4d-be64-6582978ffec9" />
+
+- Ta có thể thấy tên sản phẩm đã được sắp xếp theo bảng chữ cái vì thế nên cột này là cột được hiển thị trên trang web 
+  <img width="1445" height="578" alt="image" src="https://github.com/user-attachments/assets/144490c3-0423-4b8b-a6c2-1725c61669e5" />
+
+- Sever báo lỗi vì không có cột thứ ba. Do đó cột thứ hai sẽ là cột mà chúng ta có thể dùng để xuất dữ liệu từ các bảng khác trong cơ sở dữ liệu. Việc tiếp theo mà chúng ta cần làm sẽ là tìm xem cột nào sẽ sử dụng kiểu dữ liệu chuỗi. Ta sẽ xác định xem liệu hai cột này có sử dụng kiểu dữ liệu chuỗi hay không bằng câu lệnh: `'UNION SELECT NULL,NULL--`
+  <img width="1343" height="422" alt="image" src="https://github.com/user-attachments/assets/4ff64d40-03f9-453d-90aa-82979bda43d9" />
+
+- Có vẻ như cột thứ nhất không chứa kiểu dữ liệu chuỗi hoặc văn bản. Bây giờ, ta hãy kiểm tra xem cột thứ hai có dùng kiểu dữ liệu chuõi hoặc văn bản hay không
+  <img width="1520" height="992" alt="image" src="https://github.com/user-attachments/assets/fb6d2f2b-7bcd-4dec-9e52-5399ac7e1de9" />
+
+- Vậy là ta đã biết được cột thứ hai dùng kiểu dữ liệu chuỗi. Bước tiếp theo là xuất dữ liệu từ các bảng khác. Trong bài tập này, ta quan tâm đến bảng `users` có chứa hai cột là `username` và `password`. Nhưng vấn đề ở đây là chúng ta chỉ có một cột dùng kiểu dữ liệu chuỗi trong khi đó ta cần xuất dữ liệu từ hai cột. Ta có thể dùng câu truy vấn `'UNION SELECT NULL,username FROM users--` và `UNION SELECT NULL,password FROM users--`.
+  <img width="1443" height="532" alt="image" src="https://github.com/user-attachments/assets/80067241-d4f0-4ba5-81e7-05561dc737a0" />
+  <img width="1457" height="546" alt="image" src="https://github.com/user-attachments/assets/6cc07b72-012b-4e7d-a88d-fa0742e97a7e" />
   
+- Tuy nhiên, việc thực hiện từng câu truy vấn riêng lẻ như thế này làm cho tôi khó biết được người dùng nào sử mật khẩu nào, vì thế nên tôi cần nối tên người dùng và mật khẩu họ sử dụng lại với nhau. 
+
   
 
 
