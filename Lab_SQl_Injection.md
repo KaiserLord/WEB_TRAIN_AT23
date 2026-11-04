@@ -1,1 +1,49 @@
+### 1. Lab: SQL injection vulnerability in WHERE clause allowing retrieval of hidden data
+<img width="1917" height="1140" alt="image" src="https://github.com/user-attachments/assets/d71fc201-c080-41c6-9a47-939a3b8d74fe" />
+
+- Khi mở lab lên, ta được một giao diện ntn. Đề bài yêu cầu ta sử dụng SQL Injection để hiển thị toàn bộ sản phẩm bao gồm sản phẩm đã phát hành và chưa được phát hành. Ta có thể tiến hành SQL Injection ở bất kì thư mục nào. Ở đây tôi sẽ lựa chọn thư mục `Lifestyle`
+- Sau khi truy cập vào thư mực `Lifestyle`. Tôi nhận được giao diện ntn.
+<img width="1916" height="1137" alt="image" src="https://github.com/user-attachments/assets/92008ff0-22b3-4dff-83ba-371d7bc88c77" />
+
+- Dùng BurpSuite thì tôi biết được khi nhấn vào thư mục `Lifestyle` thì Request gửi đi là phương thức `GET` và chứa category = `Lifestyle`. Vì thế nên tôi sẽ thử nhập dấu `'` để xác định xem web này có bị lỗi hay không 
+<img width="1482" height="862" alt="image" src="https://github.com/user-attachments/assets/a71ef43e-c6da-4ce7-82be-6c5ecc6a4f1e" />
+
+- Vậy là trang web này có thể bị tấn công bằng SQL Injection. Tôi tiếp tục thêm mệnh đề comment trong SQL là `--` vào sau `Lifestyle` thì nhận được giao diện như thế này:
+<img width="1490" height="860" alt="image" src="https://github.com/user-attachments/assets/ac24f99d-025f-49c5-8f5e-68342d1e826d" />
+
+- Câu truy vấn khi tôi thực hiện điều này là:
+    ```
+    SELECT * FROM products WHERE category = 'Lifestyle'--' AND released = 1
+    ```
+- Khi này thì mệnh đề sau dấu `--` được xem là một câu ghi chú khi lập trình và bị loại bỏ hoàn toàn khỏi câu truy vấn và lúc này câu truy vấn chỉ còn lại: `SELECT * FROM products WHERE category = 'Lifestyle'`. Khi này thì sản phẩm bị ẩn đã được hiện ở mục `Lifestyle` như hình trên.
+- Nhưng thay vì một sản phẩm, tôi muốn khi nhấn vào bất cứ thư mục nào thì toàn bộ sản phẩm ở thư mục đó sẽ được hiện lên bao gồm cả sản phẩm bị ẩn. Tôi sẽ chèn thêm điều kiện `OR 1=1--` vào trong câu truy vấn. Khi này, câu truy vấn của tôi sẽ là:
+    ```
+    SELECT * FROM products WHERE category = 'Lifestyle' OR 1=1--' AND released = 1
+    ```
+- Câu truy vấn lúc này sẽ thực hiện lấy toàn bộ sản phẩm ở thư mục `Lifestyle` hoặc điều kiện `1=1`. Vì điều kiện `1=1` luôn đúng, do đó thì toàn bộ sản phẩm của ứng dụng sẽ được hiển thị, kể cả sản phẩm chưa được phát hành.
+- Thực hiện điều này trên thanh URL, ta sẽ được như hình dưới
+<img width="1916" height="1138" alt="image" src="https://github.com/user-attachments/assets/e49f2cb0-8ebd-42b0-94da-dace5c521095" />
+
+### 2.Lab: SQL injection vulnerability allowing login bypass
+- Khi mở chall lên, ta được giao diện như thế này
+<img width="1917" height="1096" alt="image" src="https://github.com/user-attachments/assets/bb6d79e7-d4a0-484a-9f7e-e2316c842f9a" />
+
+- Chọn My account để tiến hành đăng nhập. Tại đây, ta được giao diện như thế này
+<img width="1917" height="747" alt="image" src="https://github.com/user-attachments/assets/f02bb333-60ee-4c52-849d-7cda225ad95c" />
+
+- Để xác định xem trang web có bị SQL Injection hay không, tôi thử thêm dấu `'` vào sau một tên đăng nhập bất kì và nhập được giao diện như thế này
+<img width="1917" height="1133" alt="image" src="https://github.com/user-attachments/assets/b9e7b311-6827-4090-b77b-6ddb5eda0be0" />
+
+- Điều này chứng tỏ trang web bị SQL Injection. Tôi đoán câu truy vấn lúc này là:
+`SELECT * FROM users WHERE username = 'test'' AND password = 'abcxyz'`. Vì vậy tôi nghĩ mình có thể chèn thêm comment SQL `--` vào sau tên đăng nhập
+- Đọc lại yêu cầu của chall thì đề bài yêu cầu tôi đăng nhập với tư cách là `administrator`. Vì thế tôi nghĩ mình sẽ thử đăng nhập bằng `administrator'--` và nhập một mật khẩu bất kì. Sau khi làm xong thì tôi đã bypass được và đăng nhập với tư cách của `administrator`
+<img width="1915" height="1102" alt="image" src="https://github.com/user-attachments/assets/b76e64a9-1d60-4eb6-850d-df61619c0ac0" />
+
+### 3. Lab: SQL injection UNION attack, determining the number of columns returned by the query
+
+
+
+
+
+
 
