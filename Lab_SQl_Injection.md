@@ -15,11 +15,13 @@
     ```
     SELECT * FROM products WHERE category = 'Lifestyle'--' AND released = 1
     ```
+    
 - Khi này thì mệnh đề sau dấu `--` được xem là một câu ghi chú khi lập trình và bị loại bỏ hoàn toàn khỏi câu truy vấn và lúc này câu truy vấn chỉ còn lại: `SELECT * FROM products WHERE category = 'Lifestyle'`. Khi này thì sản phẩm bị ẩn đã được hiện ở mục `Lifestyle` như hình trên.
 - Nhưng thay vì một sản phẩm, tôi muốn khi nhấn vào bất cứ thư mục nào thì toàn bộ sản phẩm ở thư mục đó sẽ được hiện lên bao gồm cả sản phẩm bị ẩn. Tôi sẽ chèn thêm điều kiện `OR 1=1--` vào trong câu truy vấn. Khi này, câu truy vấn của tôi sẽ là:
     ```
     SELECT * FROM products WHERE category = 'Lifestyle' OR 1=1--' AND released = 1
     ```
+    
 - Câu truy vấn lúc này sẽ thực hiện lấy toàn bộ sản phẩm ở thư mục `Lifestyle` hoặc điều kiện `1=1`. Vì điều kiện `1=1` luôn đúng, do đó thì toàn bộ sản phẩm của ứng dụng sẽ được hiển thị, kể cả sản phẩm chưa được phát hành.
 - Thực hiện điều này trên thanh URL, ta sẽ được như hình dưới
 <img width="1916" height="1138" alt="image" src="https://github.com/user-attachments/assets/e49f2cb0-8ebd-42b0-94da-dace5c521095" />
