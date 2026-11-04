@@ -40,6 +40,21 @@
 <img width="1915" height="1102" alt="image" src="https://github.com/user-attachments/assets/b76e64a9-1d60-4eb6-850d-df61619c0ac0" />
 
 ### 3. Lab: SQL injection UNION attack, determining the number of columns returned by the query
+- Đề bài yêu ta tấn công bằng UNION attack và xác định số cột được trả về bởi câu truy vấn
+- Khi mở chall lên thì ta sẽ được giao điện như thế này
+<img width="1917" height="1097" alt="image" src="https://github.com/user-attachments/assets/c078d1b8-439e-4712-bb2c-45c41af8e3ac" />
+
+- Đề bài yêu cầu ta tấn công bằng UNION attack, xác định số cột và trả về một hàng bổ sung chứa giá trị null.
+- Theo như kiến thức mà tôi tìm hiểu, có hai phương pháp để xác định số cột trả về. Trước tiên tôi sẽ sử dụng phương pháp dùng `' ORDER BY N--` để xác định xem có bao nhiêu cột
+  <img width="1917" height="946" alt="image" src="https://github.com/user-attachments/assets/87cee88c-2be7-4e79-a515-f12a8c001d07" />
+  <img width="1917" height="1083" alt="image" src="https://github.com/user-attachments/assets/70a67a8f-a352-4785-829f-d833437d1969" />
+  <img width="1917" height="1091" alt="image" src="https://github.com/user-attachments/assets/af13547a-bd45-4a13-9b3d-e673830c42c3" />
+  <img width="1917" height="1082" alt="image" src="https://github.com/user-attachments/assets/fae66085-b927-477e-9bb3-56c29f607fbe" />
+  
+- Như vậy, thư mục `Gifts` của web sẽ có 3 cột. Sau khi biết được số cột, tôi sẽ dùng UNION attack với câu lệnh là ` ' UNION SELECT NULL,NULL,NULL-- ` và đã giải được chall
+<img width="1917" height="1036" alt="image" src="https://github.com/user-attachments/assets/aeaa8fc4-6f31-4d37-8733-b12fa10d27d0" />
+
+
 
 
 
