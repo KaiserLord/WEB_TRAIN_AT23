@@ -109,8 +109,13 @@
   <img width="1443" height="532" alt="image" src="https://github.com/user-attachments/assets/80067241-d4f0-4ba5-81e7-05561dc737a0" />
   <img width="1457" height="546" alt="image" src="https://github.com/user-attachments/assets/6cc07b72-012b-4e7d-a88d-fa0742e97a7e" />
   
-- Tuy nhiên, việc thực hiện từng câu truy vấn riêng lẻ như thế này làm cho tôi khó biết được người dùng nào sử mật khẩu nào, vì thế nên tôi cần nối tên người dùng và mật khẩu họ sử dụng lại với nhau. 
+- Tuy nhiên, việc thực hiện từng câu truy vấn riêng lẻ như thế này làm cho tôi khó biết được người dùng nào sử mật khẩu nào, vì thế nên tôi cần nối tên người dùng và mật khẩu họ sử dụng lại với nhau. Ở đây, ta sẽ sử dụng gợi ý mà bài đã cho, đó chính là những cheatsheet dùng để nối chuỗi (String concatenation) : <https://portswigger.net/web-security/sql-injection/cheat-sheet/>. Tuy nhiên, ta lại không biết trang web đang dùng phiên bản cơ sở dữ liệu nào. Do đó, chúng ta sẽ dùng cheatsheet database version để có thể xác định phiên bản đang sử dụng. Tôi sẽ sử dụng câu truy vấn `'UNION SELECT NULL,CHEAT-SHEET--`. Sau khi thử từng trường hợp, tôi đã xác định phiên bản cơ sở dữ liệu đang dùng
+  <img width="1487" height="627" alt="image" src="https://github.com/user-attachments/assets/0e501237-b7c1-47b9-b76c-29f39582be1b" />
 
+- Như vậy, phiên bản cơ sở dữ liệu đang được sử dụng là PostgreSQL. Bây giờ tôi sẽ dùng cheat-sheet nối chuỗi của Postgre SQL là `'NULL'||'NULL'` để nối `username` và `password` lại với nhau. Tôi sẽ dùng câu truy vấn `'UNION SELECT NULL,username||'~'||password FROM users--`. Tôi sử dụng dấu `~` để ngăn cách username và password vì nếu chúng dính liền nhau, ta sẽ ko biết được đâu là mật khẩu, đâu là tên người dùng.
+  <img width="1457" height="603" alt="image" src="https://github.com/user-attachments/assets/7e1f5b72-8d14-4665-bac1-f1f709398b9e" />
+
+- Bây giờ chúng ta đã có được mật khẩu và tên đăng nhập của  `administrator`. Giờ thì tiến hành đăng nhập để hoàn thành chall. 
   
 
 
