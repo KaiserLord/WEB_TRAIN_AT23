@@ -57,10 +57,36 @@
 ### 4. Lab: SQL injection UNION attack, finding a column containing text
 - Đề bài yêu cầu ta tìm cột có chứa văn bản bằng UNION attack. Trước hết ta cần phải xác định số cột có trong các thư mục. Thư mục mà tôi lựa chọn ở đây là `Lifestyle`. Để làm được điều này, tôi sẽ sử dụng phương pháp thứ nhất đó là dùng `' ORDER BY N--`. Sau khi tiến hành thì tôi biết được thư mục `Lifestyle` có 3 cột.
 <img width="1917" height="796" alt="image" src="https://github.com/user-attachments/assets/f3db5e0d-344b-49af-bb11-c4fd57c61ddf" />
+
 - Sau khi đã biết được số cột, tôi sẽ tiến hành dùng kĩ thuật UNION attack thông qua `' UNION SELECT `. Vì ở đây có 3 cột nên tôi sẽ chọn hai giá trị `null` và một giá trị văn bản. Giá trị văn bản ở đây mà để bài yêu cầu là `RptblS`
   <img width="1917" height="205" alt="image" src="https://github.com/user-attachments/assets/c7505307-81b3-45dc-b294-2bd660b1de42" />
+  
 - Vậy nên tôi sẽ sử dụng `' UNION SELECT 'RptblS',NULL,NULL--` và đảo vị trí của `RptblS` để xác định xem cột nào sẽ chứa chuỗi văn bản này. Và sau khi thử thì tôi đã biết được chuỗi văn bản cần tìm nằm ở cột thứ 2
   <img width="1916" height="1077" alt="image" src="https://github.com/user-attachments/assets/200628f9-3972-4d2e-915e-d336a91944d2" />
+
+### 5.Lab: SQL injection UNION attack, retrieving data from other tables
+- Chúng ta hãy cùng đến với một hình thức khác của UNION attack, lần này ta sẽ truy xuất dữ liệu từ những bảng khác. Đây là một kết hợp các kĩ thuật đã được học trước đây
+- Ta sẽ chọn thư mục `Lifestyle` để khai thác vì đề bài nói rằng các bộ lọc thư mục rất dễ bị khai thác và bạn cũng có thể chọn các thư mục khác để khai thác nếu muốn. Trước tiên hãy xác định xem trong thư mục này có bao nhiêu cột và bước tiếp theo là xác định kiểu dữ liệu của các cột
+- Trước tiên thì hãy thử kiểm tra xem khi ta thêm dấu `'` vào trong tên thư mục ở URL thì liệu nó có dẫn đến lỗi gì không
+  <img width="1917" height="722" alt="image" src="https://github.com/user-attachments/assets/c74b7af7-0d31-4468-9f6a-dd7fc12685e0" />
+  
+- Như vậy có thể xác định rằng trang web có thể bị khai thác bằng SQL INJECTION
+- Bây giờ, ta sẽ tiến hành xác định số cột được sử dụng. Ta sẽ sử dụng kĩ thuật `' ORDER BY N--` để làm điều này.
+  <img width="1917" height="555" alt="image" src="https://github.com/user-attachments/assets/5cbf24b4-4e56-46bd-a5ae-1f592d249ce2" />
+  
+- Như vậy số cột được sử dụng là 2 cột. Bước tiếp theo là xác định kiểu dữ liệu của hai cột này. Ta sẽ sử dụng kĩ thuật đã được học ở những bài trước là `'UNION SELECT 'a',NULL,NULL--`. Vì ở đây có hai cột và tôi đoán rằng kiểu dữ liệu của nó sẽ là chuỗi văn bản, do đó tôi sẽ sử dụng `'UNION SELECT 'a',NULL--`
+<img width="1917" height="1035" alt="image" src="https://github.com/user-attachments/assets/858cd153-aa65-49b6-bb06-66cec722b063" />
+
+- Vậy là ta đã biết được cột đầu tiên là chuỗi , giờ thì xác định xem liệu cột thứ hai có dùng chung kiểu dữ liệu này hay không
+<img width="1321" height="1017" alt="image" src="https://github.com/user-attachments/assets/8394d876-4777-44b1-8fee-6719e0cfc8f6" />
+
+- Như vậy, hai cột đều sử dụng kiểu dữ liệu là chuỗi. Điều này có nghĩa là nếu tôi muốn truy xuất dữ liệu từ các bảng khác, tôi có thể sử dụng hai cột này. Và mục tiêu của bài này là truy xuất tên đăng nhập và mật khẩu của administrator từ bảng users. Vậy nên tôi sẽ tiếp tục dùng UNION Attack để làm điều này. Tôi sẽ dùng câu truy vấn: `'UNION SELECT username,password FROM users--`
+<img width="1487" height="676" alt="image" src="https://github.com/user-attachments/assets/5990db20-af12-45f2-96d9-ddfe0e10c305" />
+
+- Sau khi làm xong, tôi nhận được tên đăng nhập và mật khẩu của administrator. Giờ thì lấy hai dữ kiện này và đăng nhập vào trang web thôi
+
+  
+  
 
 
 
