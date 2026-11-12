@@ -1,3 +1,4 @@
+## I.KIẾN THỨC NỀN TẢNG VỀ FILE UPLOAD
 ### 1. File Upload là gì?
 - File Upload là chức năng cho phép người dùng gửi một tệp từ máy tính của mình lên máy chủ của website.
 - Ví dụ, bạn truy cập một website có chức năng cập nhật ảnh đại diện.
@@ -48,9 +49,37 @@
         - Đây là Content-Type của file chứ ko phải của HTTP Request. Nó cho biết file được tải lên có định dạng là JPEG (Một hình ảnh)
     - e. Nội dung file
         - Đây là phần dữ liệu thực tế của ảnh, thường được truyền dưới dạng nhị phân (binary).
-  ### 4. Sever nhận được file thì sẽ làm gì?
+### 4. Sever nhận được file thì sẽ làm gì?
 - Sau khi nhận HTTP request, Server thường thực hiện các công việc sau :
     - Tiếp nhận dữ liệu: Server đọc HTTP request và lấy ra nội dung file.
     - Kiểm tra file: Kiểm tra những yếu tố như định dạng, kích thước, nội dung và tên file.
     - Lưu trữ: Nếu file tải lên được xác thực, file sẽ được lưu vào nơi phù hợp.
     - Phản hồi: Server trả về HTTP response để thông báo kết quả.
+### 5. File được lưu ở đâu?
+- Ví dụ: File ảnh sẽ được lưu tại: `/var/www/html/uploads/avatar.jpg`
+- Trong đó:
+    - /var/www/html: Thư mục website.
+    - /uploads: Thư mục chứa các file được upload.
+    - avatar.jpg: File được lưu trữ.
+- Sau khi upload, website có thể cung cấp một URL để truy cập file: `https://example.com/uploads/avatar.jpg`
+- Khi bạn truy cập URL này, trình duyệt gửi một HTTP request khác có dạng:
+  ```
+  GET /uploads/avatar.jpg HTTP/1.1
+  Host: example.com
+  ```
+- Server tiếp nhận request, tìm file tương ứng và trả nội dung file về cho trình duyệt.
+- Tuy nhiên cũng phải phân biệt giữa việc upload file và truy cập file vì đây là hai request khác nhau
+- 
+   | Hành động | HTTP Method | Mục đích |
+   | -------- | -------- | -------- |
+   | Upload File         |  POST        |  Gửi file lên sever        |
+   | Truy cập file         | GET         |  	Yêu cầu Server trả file về        |
+### 6. Server trả file về có phải lúc nào cũng giống nhau?
+- Tuỳ vào loại file được tải lên, sever sẽ xác định nó thuộc loại file nào rồi trả về lại kết quả
+  - Trường hợp 1: File tĩnh (Static File). Ví dụ: `avatar.jpg`, `style.css`, `logo.png`.
+      - Server thường đọc nội dung file rồi gửi trực tiếp về trình duyệt.
+      - Server không cần thực thi mã phía server bên trong file ảnh.
+  - Trường hợp 2: File có thể thực thi (Executable File)
+      - Ví dụ: Một file PHP được cấu hình để chạy trên server.
+      - Server chuyển file đến bộ xử lý PHP, thực thi chương trình và gửi kết quả trả về trình duyệt.
+      - Trình duyệt nhận kết quả thực thi, không nhất thiết nhận mã nguồn PHP ban đầu.
