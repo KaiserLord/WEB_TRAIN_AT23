@@ -83,3 +83,42 @@
       - Ví dụ: Một file PHP được cấu hình để chạy trên server.
       - Server chuyển file đến bộ xử lý PHP, thực thi chương trình và gửi kết quả trả về trình duyệt.
       - Trình duyệt nhận kết quả thực thi, không nhất thiết nhận mã nguồn PHP ban đầu.
+## II.BẢN CHẤT CỦA LỖ HỎNG FILE UPLOAD
+### 1. Vấn đề bắt nguồn từ đâu?
+- Hãy tưởng tượng một Website cho phép bạn upload ảnh đại diện
+- Website đó quy định:
+  - Chỉ cho phép upload file ảnh
+  - Chấp nhận định dạng JPG, PNG.
+  - Không chấp nhận các loại file khác.
+- Khi người dùng chọn file, website có thể kiểm tra phần mở rộng của file trước khi gửi lên Server.
+- Nhưng liệu phần mở rộng của file có đủ để chứng minh file đó thực sự là ảnh không? Câu trả lời là không. Tên file chỉ là một thông tin mô tả. Nó không đảm bảo nội dung thực tế bên trong file tương ứng với phần mở rộng đó.
+### 2. Ba thành phần thường bị nhầm lẫn
+- Trong File Upload, có ba khái niệm bạn nhất định phải phân biệt:
+  - A. File Extension (Hay còn gọi là đuôi file)
+    - Nó giúp hệ thống nhận biết loại file dựa trên tên, nhưng không chứng minh nội dung thực tế.
+  - B. Content-Type
+    - Đây là thông tin mô tả kiểu dữ liệu.
+    - Ví dụ : `Content-Type: image/jpeg` . Nó khai báo rằng nội dung được gửi lên là hình ảnh JPEG. Tuy nhiên, Content-Type trong request do Client cung cấp có thể không đáng tin cậy. Hãy nhớ rằng mọi dữ liệu đầu vào của Client đầu vào đều là Untrusted Data
+  - C. File Signature
+    - Đây là những byte đặc trưng thường xuất hiện ở đầu nội dung của một định dạng file.
+    - <img width="604" height="278" alt="image" src="https://github.com/user-attachments/assets/3785a3e9-511b-472f-985f-189ab174302b" />
+
+    - Khác với phần mở rộng và Content-Type được khai báo, file signature được kiểm tra từ dữ liệu thực tế của file. Tuy nhiên, chỉ kiểm tra vài byte đầu cũng chưa đủ để chứng minh toàn bộ file an toàn.
+### 3. Tại sao ba thành phần này có thể bị lợi dụng?
+- Giả sử server nhận được một file và cần xác định file đó có phải ảnh JPG hay không
+- Có ba cách kiểm tra phổ biến:
+  - Cách 1: Kiểm tra phần mở rộng. Server nhìn vào tên file để xác định định dạng. Tuy nhiên, tên file có thể được người dùng tùy ý đặt.
+  - Cách 2: Kiểm tra MIME Type. Server đọc trường Content-Type trong request. Nhưng người gửi request có thể tự khai báo giá trị này.
+  - Cách 3: Kiểm tra nội dung thực tế. Server phân tích cấu trúc và đặc điểm của file. Nhưng một số file được tạo đặc biệt có thể khiến việc kiểm tra phức tạp hơn. Chỉ kiểm tra chữ ký file vẫn chưa đủ.
+### 4. Sai lầm nghiêm trọng: Chỉ kiểm tra ở phía Client
+- Giả sử Website có một đoạn JavaScripts kiểm tra file trước khi upload:
+  ```
+  if (file.type === "image/jpeg") {
+    uploadFile(file);
+  } else {
+      alert("Chỉ chấp nhận ảnh JPEG");
+  }
+  ```
+- Bạn có thể thấy website đã có cơ chế kiểm tra. Nhưng vấn đề nằm ở đâu?
+- JavaScript này chạy trên trình duyệt của người dùng, tức là phía Client. Trong khi đó, người dùng có thể gửi HTTP request trực tiếp đến Server thông qua những công cụ kiểm thử HTTP.
+- Điều này có nghĩa là client hoàn toàn có thể gửi những file có chứa mã độc hoặc đoạn Script gây ảnh hưởng đến sever thông qua phần mềm thứ ba mà không cần phải gửi lên Website
