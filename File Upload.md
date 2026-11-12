@@ -29,31 +29,48 @@
 - Nếu bạn có thể tải lên thành công một web shell, bạn sẽ có được quyền kiểm soát toàn bộ máy chủ. Điều này có nghĩa là bạn có thể đọc và ghi các tệp tùy ý, đánh cắp dữ liệu nhạy cảm, thậm chí sử dụng máy chủ để chuyển hướng tấn công (pivot) vào cả cơ sở hạ tầng nội bộ lẫn các máy chủ khác nằm ngoài mạng. 
 ### 6. Khai thác lỗ hỏng từ việc xác thực thiếu xót của file upload
 - Trong thực tế sẽ không có những trang web mà không thực hiện các biện pháp bảo vệ để chống lại tấn công file upload giống như những bài trước. Mặc dù có biện pháp nhưng điều đó không đồng nghĩa với việc những biện pháp đó đủ mạnh để chống lại những cuộc tấn công đó. Thi thoảng bạn cũng có thể khai thác các lỗ hổng trong các cơ chế này để lấy web shell nhằm thực thi mã từ xa.
-#### Thiếu xác thực theo loại tệp
-- Khi gửi biểu mẫu HTML, trình duyệt thường gửi dữ liệu được cung cấp theo kiểu `POST` Request với Content Type `application/x-www-form-urlencoded`. Điều này hợp lệ với việc gửi những văn bản đơn giản như tên hoặc địa chỉ của bạn. Tuy nhiên, nó không phù hợp cho việc gửi lượng lớn dữ liệu nhị phân, chẳng hạn như toàn bộ tệp hình ảnh hoặc tài liệu PDF. Trong trường hợp này, Content Type `multipart/form-data` được ưu tiên.
-- Hãy xem xét một biểu mẫu chứa các trường để tải hình ảnh lên, cung cấp mô tả về hình ảnh đó và nhập tên người dùng của bạn. Việc gửi biểu mẫu như vậy có thể dẫn đến yêu cầu trông giống như thế này:
-```
-POST /images HTTP/1.1
+    #### 6.1 Thiếu xác thực theo loại tệp
+    - Khi gửi biểu mẫu HTML, trình duyệt thường gửi dữ liệu được cung cấp theo kiểu `POST` Request với Content Type `application/x-www-form-urlencoded`. Điều này hợp lệ với việc gửi những văn bản đơn giản như tên hoặc địa chỉ của bạn. Tuy nhiên, nó không phù hợp cho việc gửi lượng lớn dữ liệu nhị phân, chẳng hạn như toàn bộ tệp hình ảnh hoặc tài liệu PDF. Trong trường hợp này, Content Type `multipart/form-data` được ưu tiên.
+    - Hãy xem xét một biểu mẫu chứa các trường để tải hình ảnh lên, cung cấp mô tả về hình ảnh đó và nhập tên người dùng của bạn. Việc gửi biểu mẫu như vậy có thể dẫn đến yêu cầu trông giống như thế này:
+    ```
+    POST /images HTTP/1.1
+        Host: normal-website.com
+        Content-Length: 12345
+        Content-Type: multipart/form-data; boundary=---------------------------012345678901234567890123456
+    
+        ---------------------------012345678901234567890123456
+        Content-Disposition: form-data; name="image"; filename="example.jpg"
+        Content-Type: image/jpeg
+    
+        [...binary content of example.jpg...]
+    
+        ---------------------------012345678901234567890123456
+        Content-Disposition: form-data; name="description"
+    
+        This is an interesting description of my image.
+    
+        ---------------------------012345678901234567890123456
+        Content-Disposition: form-data; name="username"
+    
+        wiener
+        ---------------------------012345678901234567890123456--
+    ```
+    - Như bạn có thể thấy, nội dung của request được chia thành các phần riêng biệt cho từng thông tin đầu vào của biểu mẫu. Mỗi phần chứa một tiêu đề `Content-Disposition`, cung cấp một số thông tin cơ bản về trường đầu vào mà nó liên quan đến. Các phần riêng lẻ này cũng có thể chứa tiêu đề `Content-Type` của riêng chúng, tiêu đề này cho máy chủ biết loại MIME của dữ liệu đã được gửi bằng cách sử dụng đầu vào này.
+    - Một cách mà các trang web có thể cố gắng xác thực việc tải tệp lên là kiểm tra xem tiêu đề `Content-Type` dành riêng cho đầu vào này có khớp với loại MIME dự kiến ​​hay không. Ví dụ: nếu máy chủ chỉ cho phép các tệp hình ảnh, thì nó có thể chỉ cho phép các loại như `image/jpeg` và `image/png`. Vấn đề có thể xuất hiện khi mà giá trị của tiêu đề hoàn toàn được sever tin tưởng. Nếu không thực hiện xác thực thêm để kiểm tra xem nội dung của tệp có thực sự khớp với loại MIME hay không,việc phòng thủ này có thể dễ dàng bị vượt qua bằng cách sử dụng các công cụ như Burp Repeater.
+    #### 6.2 Ngăn chặn việc thực thi tệp trong các thư mục mà người dùng có thể truy cập
+    - Mặc dù rõ ràng là việc ngăn chặn các loại tệp nguy hiểm được tải lên ngay từ đầu sẽ tốt hơn, nhưng tuyến phòng thủ thứ hai là ngăn không cho máy chủ thực thi bất kỳ tập lệnh nào lọt qua được lớp phòng thủ này.
+    - Như một biện pháp phòng ngừa, các máy chủ thường chỉ chạy các tập lệnh có kiểu MIME mà chúng đã được cấu hình rõ ràng để thực thi. Nếu không, chúng có thể chỉ trả về một thông báo lỗi nào đó hoặc, trong một số trường hợp, phục vụ nội dung của tệp dưới dạng văn bản thuần túy (plain text):
+    ```
+    GET /static/exploit.php?command=id HTTP/1.1
     Host: normal-website.com
-    Content-Length: 12345
-    Content-Type: multipart/form-data; boundary=---------------------------012345678901234567890123456
 
-    ---------------------------012345678901234567890123456
-    Content-Disposition: form-data; name="image"; filename="example.jpg"
-    Content-Type: image/jpeg
 
-    [...binary content of example.jpg...]
+    HTTP/1.1 200 OK
+    Content-Type: text/plain
+    Content-Length: 39
 
-    ---------------------------012345678901234567890123456
-    Content-Disposition: form-data; name="description"
+    <?php echo system($_GET['command']); ?>
+    ```
+    - Tuy nhiên, việc tìm ra một tệp có thể thực thi bên trong thư mục do người dùng kiểm soát chỉ là bước đầu tiên. Ngay cả khi bạn có thể tải lên thành công một tệp như vậy, máy chủ web có thể không được cấu hình để thực thi nó.
+    - Như một biện pháp phòng ngừa, các máy chủ thường chỉ chạy các tập lệnh có kiểu MIME mà chúng đã được cấu hình rõ ràng để thực thi. Nếu không, chúng có thể chỉ trả về một thông báo lỗi nào đó hoặc, trong một số trường hợp, phục vụ nội dung của tệp dưới dạng văn bản thuần túy (plain text).
 
-    This is an interesting description of my image.
-
-    ---------------------------012345678901234567890123456
-    Content-Disposition: form-data; name="username"
-
-    wiener
-    ---------------------------012345678901234567890123456--
-```
-- Như bạn có thể thấy, nội dung của request được chia thành các phần riêng biệt cho từng thông tin đầu vào của biểu mẫu. Mỗi phần chứa một tiêu đề `Content-Disposition`, cung cấp một số thông tin cơ bản về trường đầu vào mà nó liên quan đến. Các phần riêng lẻ này cũng có thể chứa tiêu đề `Content-Type` của riêng chúng, tiêu đề này cho máy chủ biết loại MIME của dữ liệu đã được gửi bằng cách sử dụng đầu vào này.
-- Một cách mà các trang web có thể cố gắng xác thực việc tải tệp lên là kiểm tra xem tiêu đề `Content-Type` dành riêng cho đầu vào này có khớp với loại MIME dự kiến ​​hay không. Ví dụ: nếu máy chủ chỉ cho phép các tệp hình ảnh, thì nó có thể chỉ cho phép các loại như `image/jpeg` và `image/png`. Vấn đề có thể xuất hiện khi mà giá trị của tiêu đề hoàn toàn được sever tin tưởng. Nếu không thực hiện xác thực thêm để kiểm tra xem nội dung của tệp có thực sự khớp với loại MIME hay không,việc phòng thủ này có thể dễ dàng bị vượt qua bằng cách sử dụng các công cụ như Burp Repeater.
