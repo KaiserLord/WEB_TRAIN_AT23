@@ -67,7 +67,21 @@
 - Vậy thì double encoding là gì và tại sao phải encode hai lần? Chuỗi `../etc/passwd` khi mã hoá thì thành `%2e%2e%2fetc/passwd` đúng không. Nhưng mà `%` vẫn có thể tiếp tục encode được theo như cái bảng trên thành `%25` và chuỗi lúc này là `%252e%252e%252fetc/passwd`. Vậy thì tại sao lại phải mã hoá hai lần. Vì có những hệ thống có thể có hai tầng xử lý: Một thành phần giải mã URL lần thứ nhất và một thành phần khác giải mã URL lần thứ hai. Như vậy, nếu bộ lọc kiểm tra sau lần giải mã thứ nhất nhưng trước lần thứ hai, nó có thể không nhận ra `../`. Đến khi thành phần tiếp theo giải mã lần hai, chuỗi Path Traversal mới xuất hiện.
 
 - Trở lại với bài lab, tại sao trong payload của bài này thì `..` không cần phải mã hoá? Vì nhiệm vụ của chúng ta là cần mã hoá sao cho vượt qua được bộ lọc của máy chủ, làm cho nó không nhận ra chuỗi `../`. Trong payload của bài này, ta đã mã hoá `/` hai lần thành `%252e` và khi vượt qua được hai bộ lọc giải mã URL thì nó lại trở về `../`
-- 
+### 5. Lab: File path traversal, validation of start of path
+- Đầu tiên ta hãy tiến hành quan sát Request
+  <img width="1491" height="592" alt="image" src="https://github.com/user-attachments/assets/e6512fec-f7f7-44a2-8cbc-727cbe3e1a5b" />
 
+- Khác với những lab khác, tham số `filename` ở bài này lại chứa `/var/www/images/` thay vì ẩn đi như các bài trước. Bởi vì anh dev quy định rằng tất cả ảnh phải được truy cập từ thư mục: `/var/www/images/` và tạo ra một cái cơ chế đó là nếu filename bắt đầu băng `/var/www/images/` thì cho phép, còn nếu không bắt đầu bằng chuỗi đó thì ko cho phép. Với những dạng này, ta giữ nguyên tên thư mục và thêm `../../../etc/passwd` để thành `/var/www/images/../../../etc/passwd` để có thể bypass. Còn về cơ chế thì nó giống như mình giải thích ở lab 1 vậy thôi, không có gì mới. Lỗi là nằm ở anh dev, chỉ kiểm tra đường dẫn có bắt đầu bằng /var/www/images không mà quên kiểm tra xem đường dẫn sau khi chuẩn hóa
+có thực sự nằm bên trong /var/www/images không?
+  <img width="1492" height="806" alt="image" src="https://github.com/user-attachments/assets/9948793c-738d-46cb-b12d-ba5c376ee19d" />
 
+### 6.Lab: File path traversal, validation of file extension with null byte bypass
+- Ta tiến hành quan sát request của bài này thì nhận ra trong tham số filename có chứa đuôi `.jpg`. Tôi thử nhập các payload bài trước để test thử thì ko bypass qua được nên tôi thử research và kiếm được payload cho bài này
+  <img width="667" height="173" alt="image" src="https://github.com/user-attachments/assets/3ff95b2d-c5a7-485d-9d7b-0572ca13abbb" />
 
+- Nhập thử payload vào thì tôi đã bypass qua được
+  <img width="1487" height="803" alt="image" src="https://github.com/user-attachments/assets/c2dbaa91-4b83-4687-b75a-47c2d64576de" />
+
+- Vậy thì tại sao khi nhập payload đó vào, ta lại bypass qua được? Để hiểu tại sao lại bypass được, trước hết ta hãy cùng nhau tìm hiểu Null Byte là gì?
+- Null Byte là một byte có giá trị bằng 0, thường được biểu diễn bằng:`\0`. Trong URL Encoding nó được biểu diễn là `%00`. Câu hỏi đặt ra ở đây là tại sao một byte có giá trị 0 lại đặc biệt? Bởi vì trong một số môi trường lập trình, đặc biệt là các API xử lý chuỗi kiểu C, byte null được sử dụng để đánh dấu kết thúc chuỗi.
+- Quay trở lại bài lab, khi ta nhập `../../../etc/passwd%00.png`. Bộ lọc thứ nhất yêu cầu tham số filename phải có đuôi là `.png` thì mới cho qua, nó cũng khá giống cơ chế kiểm tra của bài lab thứ 5. Sau khi qua được bộ lọc thứ nhất thì có một thành phần khác giải mã cái chuỗi đó thành `../../../etc/passwd\0.png`. Lúc này thì các API xử lý chuỗi C nó sẽ dừng lại tại Byte null, lúc này chỉ chuỗi chỉ còn lại `../../../etc/passwd`, như vậy là ta có thể bypass thành công.
