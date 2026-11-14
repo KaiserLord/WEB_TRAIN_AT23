@@ -34,6 +34,7 @@
 - Thực hiện các bước là payload giống như bài trước, ta không thể bypass qua được. Tôi thử research thì kiếm được payload này giống với tên đề bài
   <img width="452" height="187" alt="image" src="https://github.com/user-attachments/assets/dff83330-a9ca-4c25-9e12-b0977b340fb8" />
 
+
 - Nhập thử thì tôi đã giải được bài này.
   <img width="1496" height="808" alt="image" src="https://github.com/user-attachments/assets/de23782f-80ae-4035-b593-20994df02183" />
 
