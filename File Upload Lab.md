@@ -32,3 +32,5 @@
 
 - Sau khi đã có được đường dẫn rồi, bạn hãy nhìn Request mà mình khoanh đỏ ở trên. Đáng lẽ ở lab 1, mình sẽ dùng đến nó, nhưng vì lab 1 cho phép mình up thẳng file php và mình chỉ cần nhấn request đó để lấy nội dung nên mình không cần dùng đến nó. Bạn chọn request đó và gửi nó đến Repeater để chỉnh sửa. Ở dòng đầu tiên, bạn hãy xoá `/academyLabHeader` sau GET đi và thay nó bằng đường dẫn mà ảnh đã lưu khi mà bạn up nó lên. Tuy nhiên, bạn hãy sửa đuôi `.jpg` thành đuôi `.php` thì mới có thể lấy được nội dung bí mật nhé
   <img width="1491" height="651" alt="image" src="https://github.com/user-attachments/assets/b5a679a0-e208-4a43-8cad-62217d593c6c" />
+
+- Trong cách mình làm, mình chọn giữ nguyên `Content-Type` và sửa nội dung ảnh cũng như đuôi ảnh. Tuy nhiên, bạn cũng có thể chọn cách nhanh hơn là đổi `Content-Type` khi mà bạn up file php thành `image/jpeg` thì vẫn được và thực hiện các bước sau giống như mình sẽ nhanh hơn mà không cần phải đổi từ đuôi `.jpg` sang `.php` giống mình nhé. Vì cách đầu tiên là cách mình tự tìm hiểu được nên mình ghi thôi hehe
