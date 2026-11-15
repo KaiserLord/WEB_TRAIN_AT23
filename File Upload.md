@@ -1,4 +1,4 @@
-(Tất cả những nội dung trên này đều được lấy từ Portswigger, bạn có thể truy cập vào <https://portswigger.net/web-security/file-upload> để tìm hiểu kĩ hơn)
+<img width="1095" height="351" alt="image" src="https://github.com/user-attachments/assets/7b7afdc8-8e61-42c8-89f1-212f2460b8cb" />(Tất cả những nội dung trên này đều được lấy từ Portswigger, bạn có thể truy cập vào <https://portswigger.net/web-security/file-upload> để tìm hiểu kĩ hơn)
 ### 1. Lỗ hỏng file upload là gì?
 - Lỗ hỏng File Upload xảy ra khi một web sever cho phép người dùng upload file lên trên file hệ thống của sever mà không xác thực đủ những thứ quan trọng như tên, loại file, nội dung file và kích thước của chúng.
 - Việc không thực thi đúng cách các hạn chế đối với những điều này có nghĩa là ngay cả chức năng tải lên hình ảnh cơ bản cũng có thể được sử dụng để tải lên các tệp tùy ý và có khả năng gây nguy hiểm. Điều này thậm chí có thể bao gồm các tệp tập lệnh phía máy chủ cho phép thực thi mã từ xa.
@@ -25,43 +25,65 @@
   - **Mẹo**
     - Header response `Content-type`có thể cung cấp manh mối về loại tệp mà máy chủ đã sử dụng.  Nếu header này chưa được thiết lập một cách rõ ràng bởi mã nguồn ứng dụng, nó thường sẽ chứa kết quả của việc ánh xạ giữa phần mở rộng tệp và kiểu MIME (file extension/MIME type mapping)
 ### 5. Khai thác lỗ hỏng từ việc tải tệp không hạn chế để triển khai mã độc web shell
-- Từ góc nhìn bảo mật, trường hợp tệ nhất là khi một trang web chấp nhận tải lên đoạn mã phía sever như PHP,JAVA hoặc là PYTHON và cũng được cấu hình để thực thi chúng dưới dạng mã. Điều này khiến việc tạo web shell của riêng bạn trên máy chủ trở nên đơn giản.(*Web shell* là một đoạn mã độc cho phép kẻ tấn công thực thi các lệnh tùy ý trên một máy chủ web từ xa chỉ bằng cách gửi các HTTP Request đến đúng endpoint.)
-- Nếu bạn có thể tải lên thành công một web shell, bạn sẽ có được quyền kiểm soát toàn bộ máy chủ. Điều này có nghĩa là bạn có thể đọc và ghi các tệp tùy ý, đánh cắp dữ liệu nhạy cảm, thậm chí sử dụng máy chủ để chuyển hướng tấn công (pivot) vào cả cơ sở hạ tầng nội bộ lẫn các máy chủ khác nằm ngoài mạng. 
-### 6. Khai thác lỗ hỏng từ việc xác thực thiếu xót của file upload
-- Trong thực tế sẽ không có những trang web mà không thực hiện các biện pháp bảo vệ để chống lại tấn công file upload giống như những bài trước. Mặc dù có biện pháp nhưng điều đó không đồng nghĩa với việc những biện pháp đó đủ mạnh để chống lại những cuộc tấn công đó. Thi thoảng bạn cũng có thể khai thác các lỗ hổng trong các cơ chế này để lấy web shell nhằm thực thi mã từ xa.
-    #### 6.1 Thiếu xác thực theo loại tệp
-    - Khi gửi biểu mẫu HTML, trình duyệt thường gửi dữ liệu được cung cấp theo kiểu `POST` Request với Content Type `application/x-www-form-urlencoded`. Điều này hợp lệ với việc gửi những văn bản đơn giản như tên hoặc địa chỉ của bạn. Tuy nhiên, nó không phù hợp cho việc gửi lượng lớn dữ liệu nhị phân, chẳng hạn như toàn bộ tệp hình ảnh hoặc tài liệu PDF. Trong trường hợp này, Content Type `multipart/form-data` được ưu tiên.
-    - Hãy xem xét một biểu mẫu chứa các trường để tải hình ảnh lên, cung cấp mô tả về hình ảnh đó và nhập tên người dùng của bạn. Việc gửi biểu mẫu như vậy có thể dẫn đến yêu cầu trông giống như thế này:
+- Từ góc độ bảo mật, kịch bản tồi tệ nhất có thể xảy ra là khi một website cho phép bạn tải lên các tập lệnh chạy phía máy chủ (server-side scripts), chẳng hạn như PHP, Java hoặc Python, đồng thời được cấu hình để thực thi chúng dưới dạng mã chương trình. Điều này khiến việc tạo ra một Web Shell trên máy chủ trở nên vô cùng dễ dàng.
+
+  > Web Shell là một tập lệnh độc hại cho phép kẻ tấn công thực thi các lệnh tùy ý trên một máy chủ web từ xa, đơn giản bằng cách gửi các HTTP request đến endpoint tương ứng.
+- Nếu bạn có thể tải lên Web Shell thành công, về cơ bản bạn có thể giành được quyền kiểm soát rất lớn đối với máy chủ. Điều này có nghĩa là bạn có thể:
+  - Đọc và ghi các tệp tùy ý.
+  - Lấy cắp dữ liệu nhạy cảm.
+  - Sử dụng máy chủ làm bàn đạp để tấn công các hệ thống nội bộ và những máy chủ khác nằm ngoài mạng.
+- Ví dụ, đoạn mã PHP một dòng sau có thể được sử dụng để đọc các tệp tùy ý trong hệ thống tệp của máy chủ:
+  ```
+  <?php echo file_get_contents('/path/to/target/file'); ?>
+  ```
+- Sau khi tải tệp này lên thành công, việc gửi một HTTP request đến tệp độc hại sẽ khiến nội dung của tệp mục tiêu được trả về trong HTTP response.
+- Một Web Shell linh hoạt hơn có thể trông như sau:
+  ```
+  <?php echo system($_GET['command']); ?>
+  ```
+- Tập lệnh này cho phép bạn truyền một lệnh hệ thống tùy ý thông qua một tham số query như sau:
+  ```
+  GET /example/exploit.php?command=id HTTP/1.1
+  ```
+### 6. Khai thác sự thiếu sót trong việc xác thực tệp được tải lên
+- Trong thực tế, rất khó để bạn tìm thấy một website hoàn toàn không có biện pháp bảo vệ trước các cuộc tấn công thông qua chức năng tải tệp lên (File Upload Attacks), giống như những gì chúng ta đã thấy trong bài thực hành trước. Tuy nhiên, việc một website có triển khai các cơ chế phòng thủ không có nghĩa là những cơ chế đó đủ mạnh và an toàn. Đôi khi, bạn vẫn có thể khai thác những điểm yếu trong các cơ chế này để đạt được Web Shell, từ đó thực hiện Remote Code Execution
+  #### Xác thực loại tệp có lỗ hổng
+  - Khi gửi dữ liệu thông qua các biểu mẫu HTML , trình duyệt thường gửi dữ liệu được cung cấp bằng một HTTP request có phương thức `POST`, với Content-Type là: `application/x-www-form-urlencoded`. Cách này phù hợp để gửi những dữ liệu văn bản đơn giản, chẳng hạn như tên hoặc địa chỉ của bạn.Tuy nhiên, nó không phù hợp để gửi một lượng lớn dữ liệu nhị phân (Binary Data), chẳng hạn như toàn bộ nội dung của một tệp hình ảnh hoặc tài liệu PDF.Trong trường hợp này, kiểu nội dung sau sẽ được ưu tiên sử dụng:`multipart/form-data`. Hãy tưởng tượng một biểu mẫu có chứa các trường sau:
+    - Tải lên một hình ảnh.
+    - Nhập mô tả cho hình ảnh đó.
+    - Nhập tên người dùng (Username).
+  - Khi gửi biểu mẫu như vậy, trình duyệt có thể tạo ra một HTTP request có dạng như sau:
     ```
     POST /images HTTP/1.1
-        Host: normal-website.com
-        Content-Length: 12345
-        Content-Type: multipart/form-data; boundary=---------------------------012345678901234567890123456
-    
-        ---------------------------012345678901234567890123456
-        Content-Disposition: form-data; name="image"; filename="example.jpg"
-        Content-Type: image/jpeg
-    
-        [...binary content of example.jpg...]
-    
-        ---------------------------012345678901234567890123456
-        Content-Disposition: form-data; name="description"
-    
-        This is an interesting description of my image.
-    
-        ---------------------------012345678901234567890123456
-        Content-Disposition: form-data; name="username"
-    
-        wiener
-        ---------------------------012345678901234567890123456--
+    Host: normal-website.com
+    Content-Length: 12345
+    Content-Type: multipart/form-data; boundary=---------------------------012345678901234567890123456
+
+    ---------------------------012345678901234567890123456
+    Content-Disposition: form-data; name="image"; filename="example.jpg"
+    Content-Type: image/jpeg
+
+    [...binary content of example.jpg...]
+
+    ---------------------------012345678901234567890123456
+    Content-Disposition: form-data; name="description"
+
+    This is an interesting description of my image.
+
+    ---------------------------012345678901234567890123456
+    Content-Disposition: form-data; name="username"
+
+    wiener
+    ---------------------------012345678901234567890123456--
     ```
-    - Như bạn có thể thấy, nội dung của request được chia thành các phần riêng biệt cho từng thông tin đầu vào của biểu mẫu. Mỗi phần chứa một tiêu đề `Content-Disposition`, cung cấp một số thông tin cơ bản về trường đầu vào mà nó liên quan đến. Các phần riêng lẻ này cũng có thể chứa tiêu đề `Content-Type` của riêng chúng, tiêu đề này cho máy chủ biết loại MIME của dữ liệu đã được gửi bằng cách sử dụng đầu vào này.
-    - Một cách mà các trang web có thể cố gắng xác thực việc tải tệp lên là kiểm tra xem tiêu đề `Content-Type` dành riêng cho đầu vào này có khớp với loại MIME dự kiến ​​hay không. Ví dụ: nếu máy chủ chỉ cho phép các tệp hình ảnh, thì nó có thể chỉ cho phép các loại như `image/jpeg` và `image/png`. Vấn đề có thể xuất hiện khi mà giá trị của tiêu đề hoàn toàn được sever tin tưởng. Nếu không thực hiện xác thực thêm để kiểm tra xem nội dung của tệp có thực sự khớp với loại MIME hay không,việc phòng thủ này có thể dễ dàng bị vượt qua bằng cách sử dụng các công cụ như Burp Repeater.
-    #### 6.2 Ngăn chặn việc thực thi tệp trong các thư mục mà người dùng có thể truy cập
-    - Mặc dù rõ ràng là việc ngăn chặn các loại tệp nguy hiểm được tải lên ngay từ đầu sẽ tốt hơn, nhưng tuyến phòng thủ thứ hai là ngăn không cho máy chủ thực thi bất kỳ tập lệnh nào lọt qua được lớp phòng thủ này.
-    - Như một biện pháp phòng ngừa, các máy chủ thường chỉ chạy các tập lệnh có kiểu MIME mà chúng đã được cấu hình rõ ràng để thực thi. Nếu không, chúng có thể chỉ trả về một thông báo lỗi nào đó hoặc, trong một số trường hợp, phục vụ nội dung của tệp dưới dạng văn bản thuần túy (plain text):
-    ```
-    GET /static/exploit.php?command=id HTTP/1.1
+  - Như bạn có thể thấy, phần thân của thông điệp HTTP (Message Body) được chia thành nhiều phần riêng biệt, tương ứng với từng trường dữ liệu trong biểu mẫu. Mỗi phần chứa một header `Content-Disposition`, cung cấp một số thông tin cơ bản về trường dữ liệu mà nó liên quan đến. Các phần riêng biệt này cũng có thể chứa header `Content-Type` của riêng chúng. Header này cho máy chủ biết kiểu MIME (MIME Type) của dữ liệu được gửi thông qua trường nhập liệu đó.
+  - Một trong những cách mà website có thể sử dụng để xác thực tệp tải lên là kiểm tra xem header `Content-Type` của từng trường dữ liệu có khớp với kiểu MIME được mong đợi hay không.Ví dụ: Nếu máy chủ chỉ mong đợi các tệp hình ảnh, nó có thể chỉ cho phép những kiểu dữ liệu như:
+`image/jpeg`, `image/png`. Vấn đề có thể xảy ra khi máy chủ mặc nhiên tin tưởng giá trị của header này.Nếu máy chủ không thực hiện thêm bất kỳ bước xác thực nào để kiểm tra xem nội dung thực tế của tệp có đúng với kiểu MIME được khai báo hay không, thì cơ chế bảo vệ này có thể dễ dàng bị vượt qua bằng những công cụ như Burp Repeater.
+### 7. Ngăn chặn việc thực thi tệp trong các thư mục mà người dùng có thể truy cập
+- Mặc dù việc ngăn chặn các loại tệp nguy hiểm được tải lên ngay từ đầu rõ ràng là giải pháp tốt hơn, nhưng tuyến phòng thủ thứ hai là ngăn máy chủ thực thi bất kỳ tập lệnh (Script) nào có thể vượt qua được các cơ chế kiểm tra ban đầu.
+- Để đề phòng, các máy chủ thường chỉ thực thi những tập lệnh có kiểu MIME (MIME Type) mà chúng đã được cấu hình rõ ràng để cho phép thực thi.Trong những trường hợp khác, máy chủ có thể chỉ trả về một thông báo lỗi hoặc đôi khi hiển thị nội dung của tệp dưới dạng văn bản thuần.
+  ```
+  GET /static/exploit.php?command=id HTTP/1.1
     Host: normal-website.com
 
 
@@ -70,7 +92,35 @@
     Content-Length: 39
 
     <?php echo system($_GET['command']); ?>
-    ```
-    - Tuy nhiên, việc tìm ra một tệp có thể thực thi bên trong thư mục do người dùng kiểm soát chỉ là bước đầu tiên. Ngay cả khi bạn có thể tải lên thành công một tệp như vậy, máy chủ web có thể không được cấu hình để thực thi nó.
-    - Như một biện pháp phòng ngừa, các máy chủ thường chỉ chạy các tập lệnh có kiểu MIME mà chúng đã được cấu hình rõ ràng để thực thi. Nếu không, chúng có thể chỉ trả về một thông báo lỗi nào đó hoặc, trong một số trường hợp, phục vụ nội dung của tệp dưới dạng văn bản thuần túy (plain text).
+  ```
+- Hành vi này cũng có thể mang lại một lợi ích đáng chú ý: nó có thể tạo ra cách để làm lộ mã nguồn, nhưng đồng thời vô hiệu hóa mọi nỗ lực tạo Web Shell.
+- Hệ thống cấu hình kiểu này thường khác nhau giữa các thư mục.Một thư mục dùng để lưu trữ những tệp do người dùng tải lên thường sẽ có các biện pháp kiểm soát nghiêm ngặt hơn so với những vị trí khác trên hệ thống tệp (File System), vốn được giả định là nằm ngoài phạm vi truy cập của người dùng cuối.Nếu bạn có thể tìm ra cách tải một tập lệnh lên một thư mục khác, nơi không được thiết kế để chứa các tệp do người dùng cung cấp, thì cuối cùng máy chủ vẫn có thể thực thi tập lệnh đó.
+  > Mẹo: Các máy chủ web thường sử dụng trường filename trong những request multipart/form-data để xác định tên và vị trí lưu trữ của tệp.
+- Bạn cũng cần lưu ý rằng mặc dù bạn có thể gửi tất cả request đến cùng một tên miền, nhưng phía sau thường có một máy chủ Reverse Proxy, chẳng hạn như Load Balancer. Các request của bạn thường sẽ được xử lý bởi những máy chủ bổ sung ở phía sau hệ thống. Những máy chủ này cũng có thể được cấu hình khác nhau.
 
+### 8. Chặn các loại tệp nguy hiểm không đầy đủ
+- Một trong những cách rõ ràng nhất để ngăn người dùng tải lên các tập lệnh độc hại là đưa những phần mở rộng tệp có khả năng nguy hiểm vào danh sách đen, chẳng hạn như `.php`. Tuy nhiên, phương pháp sử dụng danh sách đen vốn có những hạn chế, bởi vì rất khó để chặn một cách rõ ràng tất cả các phần mở rộng tệp có thể được sử dụng để thực thi mã. Đôi khi, những danh sách đen này vẫn có thể bị vượt qua bằng cách sử dụng các phần mở rộng tệp thay thế ít phổ biến hơn nhưng vẫn có khả năng thực thi, chẳng hạn như:`.php5`, `.shtml` và những phần khác
+  #### Ghi đè cấu hình máy chủ
+  - Như đã thảo luận trong phần trước, các máy chủ thường sẽ không thực thi tệp trừ khi chúng đã được cấu hình để làm điều đó. Ví dụ, trước khi một máy chủ Apache thực thi các tệp PHP được yêu cầu bởi client, các nhà phát triển có thể cần thêm những chỉ thị sau vào tệp `/etc/apache2/apache2.conf`
+  ```
+  LoadModule php_module /usr/lib/apache2/modules/libphp.so
+  AddType application/x-httpd-php .php
+  ```
+  - Nhiều máy chủ cũng cho phép các nhà phát triển tạo những tệp cấu hình đặc biệt bên trong từng thư mục riêng lẻ nhằm ghi đè hoặc bổ sung một hay nhiều thiết lập toàn cục. Ví dụ, máy chủ Apache sẽ tải cấu hình dành riêng cho từng thư mục từ một tệp có tên `.htaccess`, nếu tệp này tồn tại. Tương tự, các nhà phát triển có thể thiết lập cấu hình riêng cho từng thư mục trên máy chủ IIS bằng cách sử dụng tệp web.config. Cấu hình này có thể bao gồm những chỉ thị như sau, trong trường hợp này cho phép các tệp JSON được cung cấp cho người dùng:
+  ```
+  <staticContent>
+    <mimeMap fileExtension=".json" mimeType="application/json" />
+  </staticContent>
+  ```
+  - Khi những tệp cấu hình này tồn tại, máy chủ web sẽ sử dụng chúng. Tuy nhiên, thông thường bạn không được phép truy cập những tệp này thông qua các HTTP request. Mặc dù vậy, đôi khi bạn có thể tìm thấy những máy chủ không ngăn chặn được việc bạn tải lên tệp cấu hình độc hại của riêng mình. Trong trường hợp này, ngay cả khi phần mở rộng tệp mà bạn cần sử dụng nằm trong danh sách đen, bạn vẫn có thể đánh lừa máy chủ bằng cách ánh xạ một phần mở rộng tệp tùy ý, do bạn tự chỉ định, sang một kiểu MIME có khả năng thực thi.
+  #### Làm rối phần mở rộng tệp
+  - Ngay cả những danh sách đen toàn diện nhất cũng có khả năng bị vượt qua bằng cách sử dụng các kỹ thuật làm rối truyền thống. Giả sử mã xác thực phân biệt chữ hoa chữ thường và không nhận diện được rằng `exploit.pHp` thực chất là một tệp `.php`. Nếu đoạn mã tiếp theo chịu trách nhiệm ánh xạ phần mở rộng tệp sang kiểu MIME lại không phân biệt chữ hoa chữ thường, sự khác biệt này sẽ cho phép bạn đưa các tệp PHP độc hại vượt qua bước xác thực và những tệp này cuối cùng có thể được máy chủ thực thi.
+  - Bạn cũng có thể đạt được kết quả tương tự bằng cách sử dụng những kỹ thuật sau:
+    - Cung cấp nhiều phần mở rộng (Provide multiple extensions): Tùy thuộc vào thuật toán được sử dụng để phân tích tên tệp, tệp sau đây có thể được hiểu là tệp PHP hoặc hình ảnh JPG: `exploit.php.jpg`
+    - Thêm các ký tự ở cuối (Add trailing characters): Một số thành phần sẽ loại bỏ hoặc bỏ qua các khoảng trắng, dấu chấm và những ký tự tương tự ở cuối tên tệp: `exploit.php.`
+    - Thử sử dụng URL encoding (hoặc Double URL encoding) đối với dấu chấm, dấu gạch chéo xuôi và dấu gạch chéo ngược: Nếu giá trị không được giải mã khi xác thực phần mở rộng tệp, nhưng sau đó lại được giải mã ở phía máy chủ (Server-side), điều này cũng có thể cho phép bạn tải lên những tệp độc hại mà đáng lẽ phải bị chặn. Ví dụ: `exploit%2ephp`
+    - Thêm dấu chấm phẩy hoặc các ký tự Null Byte được mã hóa URL trước phần mở rộng tệp: Nếu quá trình xác thực được viết bằng một ngôn ngữ cấp cao như PHP hoặc Java, nhưng máy chủ lại xử lý tệp bằng các hàm cấp thấp hơn trong C/C++, điều này có thể gây ra sự khác biệt trong cách xác định vị trí kết thúc của tên tệp. Ví dụ: `exploit.asp;.jpg` hoặc `exploit.asp%00.jpg`
+    - Thử sử dụng các ký tự Unicode đa byte (Multibyte Unicode Characters): Những ký tự này có thể được chuyển đổi thành Null Byte và dấu chấm sau quá trình chuyển đổi hoặc chuẩn hóa Unicode (Unicode Conversion or Normalization). Các chuỗi như `xC0 x2E`, `xC4 xAE` hoặc `xC0 xAE` có thể được chuyển đổi thành `x2E` nếu tên tệp được phân tích dưới dạng chuỗi UTF-8, nhưng sau đó lại được chuyển đổi thành các ký tự ASCII trước khi được sử dụng trong đường dẫn.
+    - Các biện pháp bảo vệ khác liên quan đến việc loại bỏ hoặc thay thế các phần mở rộng nguy hiểm để ngăn chặn việc thực thi tệp. Nếu phép chuyển đổi này không được áp dụng đệ quy, bạn có thể định vị chuỗi bị cấm theo cách mà việc xóa nó vẫn để lại phần mở rộng tệp hợp lệ. Ví dụ: hãy xem điều gì sẽ xảy ra nếu bạn loại bỏ .php khỏi tên tệp sau:
+      > exploit.p.**php**hp
+    - Đây chỉ là một phần nhỏ trong số rất nhiều cách có thể được sử dụng để làm rối phần mở rộng tệp
