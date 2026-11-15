@@ -1,4 +1,4 @@
-<img width="1095" height="351" alt="image" src="https://github.com/user-attachments/assets/7b7afdc8-8e61-42c8-89f1-212f2460b8cb" />(Tất cả những nội dung trên này đều được lấy từ Portswigger, bạn có thể truy cập vào <https://portswigger.net/web-security/file-upload> để tìm hiểu kĩ hơn)
+(Tất cả những nội dung trên này đều được lấy từ Portswigger, bạn có thể truy cập vào <https://portswigger.net/web-security/file-upload> để tìm hiểu kĩ hơn)
 ### 1. Lỗ hỏng file upload là gì?
 - Lỗ hỏng File Upload xảy ra khi một web sever cho phép người dùng upload file lên trên file hệ thống của sever mà không xác thực đủ những thứ quan trọng như tên, loại file, nội dung file và kích thước của chúng.
 - Việc không thực thi đúng cách các hạn chế đối với những điều này có nghĩa là ngay cả chức năng tải lên hình ảnh cơ bản cũng có thể được sử dụng để tải lên các tệp tùy ý và có khả năng gây nguy hiểm. Điều này thậm chí có thể bao gồm các tệp tập lệnh phía máy chủ cho phép thực thi mã từ xa.
@@ -124,3 +124,40 @@
     - Các biện pháp bảo vệ khác liên quan đến việc loại bỏ hoặc thay thế các phần mở rộng nguy hiểm để ngăn chặn việc thực thi tệp. Nếu phép chuyển đổi này không được áp dụng đệ quy, bạn có thể định vị chuỗi bị cấm theo cách mà việc xóa nó vẫn để lại phần mở rộng tệp hợp lệ. Ví dụ: hãy xem điều gì sẽ xảy ra nếu bạn loại bỏ .php khỏi tên tệp sau:
       > exploit.p.**php**hp
     - Đây chỉ là một phần nhỏ trong số rất nhiều cách có thể được sử dụng để làm rối phần mở rộng tệp
+  #### Xác thực nội dung tệp có lỗ hổng
+  - Thay vì mặc nhiên tin tưởng vào Content-Type được chỉ định trong một request, các máy chủ an toàn hơn sẽ cố gắng xác minh rằng nội dung thực tế của tệp khớp với định dạng được mong đợi.
+  - Trong trường hợp chức năng tải ảnh lên, máy chủ có thể cố gắng xác minh một số thuộc tính vốn có của hình ảnh, chẳng hạn như kích thước của nó. Ví dụ: nếu bạn thử tải lên tập lệnh PHP, nó sẽ không có bất kỳ kích thước nào cả. Do đó, máy chủ có thể suy luận rằng đó không thể là hình ảnh và từ chối tải lên tương ứng.
+  - Tương tự, một số loại tệp nhất định luôn chứa một chuỗi byte cụ thể trong phần đầu hoặc phần cuối của chúng. Những chuỗi byte này có thể được sử dụng giống như dấu vân tay hoặc chữ ký (Fingerprint or Signature) để xác định xem nội dung tệp có khớp với định dạng được mong đợi hay không. Ví dụ, các tệp JPEG luôn bắt đầu bằng những byte sau: `FF D8 FF`
+  - Đây là một phương pháp xác thực loại tệp mạnh mẽ hơn nhiều, nhưng ngay cả phương pháp này cũng không hoàn toàn an toàn tuyệt đối. Bằng cách sử dụng các công cụ chuyên dụng như ExifTool, việc tạo ra một tệp JPEG đa định dạng (Polyglot JPEG) có chứa mã độc bên trong metadata của nó có thể trở nên rất đơn giản.
+  #### Khai thác các điều kiện tranh chấp trong quá trình tải tệp lên
+  - Các framework hiện đại đã được tăng cường khả năng chống lại những kiểu tấn công này. Thông thường, chúng không tải tệp trực tiếp vào vị trí đích dự kiến trên hệ thống tệp. Thay vào đó, chúng thực hiện các biện pháp phòng ngừa như:
+    - Tải tệp lên một thư mục tạm thời (Temporary Directory) được cách ly (Sandboxed) trước.
+    - Ngẫu nhiên hóa tên tệp để tránh ghi đè lên các tệp hiện có.
+    - Sau đó, thực hiện xác thực trên tệp tạm thời này.
+    - Chỉ chuyển tệp đến vị trí đích sau khi xác định rằng tệp đã an toàn.
+  - Tuy nhiên, các nhà phát triển đôi khi tự triển khai quy trình xử lý tải tệp lên mà không phụ thuộc vào bất kỳ framework nào. Việc triển khai tốt quy trình này vốn đã khá phức tạp, và nó còn có thể tạo ra những Race Conditions nguy hiểm, cho phép kẻ tấn công hoàn toàn vượt qua ngay cả những cơ chế xác thực mạnh mẽ nhất.
+  - Ví dụ, một số website tải tệp trực tiếp vào hệ thống tệp chính, sau đó xóa tệp đi nếu nó không vượt qua bước xác thực. Kiểu triển khai này thường xuất hiện ở những website dựa vào phần mềm diệt virus và các công cụ tương tự để kiểm tra mã độc. Quá trình này có thể chỉ mất vài mili giây, nhưng trong khoảng thời gian ngắn mà tệp tồn tại trên máy chủ, kẻ tấn công vẫn có khả năng thực thi nó.
+  - Những lỗ hổng này thường cực kỳ tinh vi, khiến chúng khó bị phát hiện trong quá trình kiểm thử hộp đen, trừ khi bạn tìm được cách làm lộ mã nguồn liên quan.
+  #### Race Condition trong quá trình tải tệp lên dựa trên URL
+  - Các điều kiện tranh chấp tương tự cũng có thể xảy ra trong những chức năng cho phép bạn tải tệp lên bằng cách cung cấp một URL. Trong trường hợp này, máy chủ phải tải tệp từ Internet và tạo một bản sao cục bộ trước khi có thể thực hiện bất kỳ bước xác thực nào.
+  - Vì tệp được tải xuống bằng HTTP, các nhà phát triển không thể sử dụng những cơ chế tích hợp sẵn trong framework của họ để xác thực tệp một cách an toàn. Thay vào đó, họ có thể phải tự xây dựng quy trình riêng để lưu trữ tạm thời và xác thực tệp. Tuy nhiên, quy trình này có thể không an toàn bằng.
+  - Ví dụ, nếu tệp được tải vào một thư mục tạm thời với tên được tạo ngẫu nhiên, về mặt lý thuyết, kẻ tấn công sẽ không thể khai thác bất kỳ điều kiện tranh chấp nào. Nếu không biết tên thư mục, họ sẽ không thể gửi request đến tệp để kích hoạt việc thực thi nó. Mặt khác, nếu tên thư mục ngẫu nhiên được tạo bằng các hàm giả ngẫu nhiên như `uniqid()` của PHP, thì về lý thuyết, tên thư mục này có thể bị dò tìm bằng phương pháp vét cạn.
+  - Để khiến những cuộc tấn công như vậy trở nên dễ dàng hơn, bạn có thể thử kéo dài thời gian xử lý tệp, từ đó mở rộng khoảng thời gian có thể dùng để dò tìm tên thư mục bằng phương pháp Brute-force. Một cách để thực hiện điều này là tải lên một tệp có kích thước lớn hơn. Nếu tệp được xử lý theo từng khối, bạn có thể tận dụng điều này bằng cách tạo một tệp độc hại có chứa payload ở phần đầu, theo sau là một lượng lớn các byte đệm tùy ý.
+### 9. Khai thác lỗ hổng tải tệp lên mà không cần thực thi mã từ xa
+Trong những ví dụ mà chúng ta đã tìm hiểu cho đến nay, chúng ta có thể tải lên các tập lệnh phía máy chủ (Server-side Scripts) để thực hiện thực thi mã từ xa (Remote Code Execution). Đây là hậu quả nghiêm trọng nhất của một chức năng tải tệp lên không an toàn, nhưng những lỗ hổng này vẫn có thể bị khai thác theo những cách khác.
+  #### Tải lên các tập lệnh độc hại phía client
+  - Mặc dù bạn có thể không thực thi được các tập lệnh trên máy chủ, nhưng bạn vẫn có thể tải lên những tập lệnh phục vụ cho các cuộc tấn công phía client . Ví dụ, nếu bạn có thể tải lên các tệp HTML hoặc hình ảnh SVG, bạn có thể sử dụng các thẻ `<script>` để tạo ra những payload XSS được lưu trữ.
+  - Nếu tệp đã tải lên sau đó xuất hiện trên một trang web được những người dùng khác truy cập, trình duyệt của họ sẽ thực thi tập lệnh khi cố gắng hiển thị trang đó. Lưu ý rằng do các hạn chế của chính sách cùng nguồn gốc , những kiểu tấn công này chỉ hoạt động nếu tệp được tải lên được phân phối từ cùng một origin với origin mà bạn đã tải tệp lên.
+  #### Khai thác các lỗ hổng trong quá trình phân tích cú pháp tệp đã tải lên
+  - Nếu tệp đã tải lên dường như được lưu trữ và phân phối một cách an toàn, phương án cuối cùng là thử khai thác những lỗ hổng đặc thù liên quan đến quá trình phân tích cú pháp (Parsing) hoặc xử lý các định dạng tệp khác nhau. Ví dụ, nếu bạn biết máy chủ phân tích cú pháp các tệp dựa trên XML, chẳng hạn như những tệp Microsoft Office .doc hoặc .xls, thì đây có thể là một hướng khai thác tiềm năng đối với các cuộc tấn công XML External Entity (XXE) Injection.
+### 10. Tải tệp lên bằng phương thức PUT
+- Cần lưu ý rằng một số máy chủ web có thể được cấu hình để hỗ trợ các request sử dụng phương thức `PUT`. Nếu không có những biện pháp phòng thủ phù hợp, điều này có thể cung cấp một phương thức thay thế để tải lên các tệp độc hại, ngay cả khi chức năng tải tệp lên không có sẵn thông qua giao diện web.
+  ```
+  PUT /images/exploit.php HTTP/1.1
+  Host: vulnerable-website.com
+  Content-Type: application/x-httpd-php
+  Content-Length: 49
+  
+  <?php echo file_get_contents('/path/to/file'); ?>
+  ```
+- Bạn có thể thử gửi các request `OPTIONS` đến những endpoint khác nhau để kiểm tra xem chúng có công bố hỗ trợ phương thức `PUT` hay không.
