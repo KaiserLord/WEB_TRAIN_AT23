@@ -70,5 +70,5 @@
 - Tại sao bài này lại dùng Path Traversal và payload kia lại có thể bypass qua được? Dùng Path Traversal thì tôi đã giải thích ở trên, thư mục `avatars` không được cấu hình để thực thi để thực thi PHP nên tôi muốn đưa nó lên thư mục cha của nó là thư mục `files` để xem thử nó có chạy code PHP hay không và may mắn là ở bài này thì nó chạy được
 - Còn tại sao payload kia lại có thể bypass qua được? Ban đầu tôi đã nhập hai payload là `../` và `....//` và sever chỉ trả về là `The file avatars/exploit.php has been uploaded.` và tôi vẫn đang ở thư mục `avatars` mà như thế thì có thể là web đã có bộ lọc loại bỏ `../` vậy nên tôi dùng tới kĩ thuật URL Encoding mà tôi đã được học. Lúc này thì web không nhận dạng được `../` nên nó nghĩ file gửi lên là hợp lệ và cho qua và sau khi URL Encoding thì nó lại hiện về `../` và như thế là bypass qua được bộ lọc. Tất nhiên là nếu web có Double Encoding thì bạn phải Encode `%` thêm một lần nữa để bypass. Trong Response trả về, nó vẫn hiện là `avatars/../hacked.php` vì đây là đường dẫn sau khi được decode chứ không phải sau khi được chuẩn hoá. Và sau đó, bạn sửa đường dẫn trong GET Request thành `/files/avatars/../hacked.php` thì lúc này bạn đã đưa file hacked.php lên thư mục files. Thư mục này chạy file php mà bạn gửi lên và trả lại cho bạn secret
 ### 4. Lab: Web shell upload via extension blacklist bypass
-
+- 
   
