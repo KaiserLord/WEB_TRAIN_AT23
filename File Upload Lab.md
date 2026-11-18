@@ -76,5 +76,21 @@
 - Có vẻ như lần này trang web đã chặn việc up file php. Tôi sẽ thử đổi thành đuôi `.jpg` xem có bypass được không nhé.
   <img width="1496" height="796" alt="image" src="https://github.com/user-attachments/assets/378a3d58-e539-4457-9d1f-6d6028dfa91b" />
 
-- Sau khi đổi thì tôi đã upload thành công, nhưng hãy xem thử là liệu đoạn mã này có chạy ko nhé. Sau khi gửi xong thì bạn cứ 
-- 
+- Sau khi đổi thì tôi đã upload thành công, nhưng hãy xem thử là liệu đoạn mã này có chạy ko nhé.
+  <img width="1138" height="568" alt="image" src="https://github.com/user-attachments/assets/862df550-6d57-4065-b97a-741726bd9819" />
+
+- Tuy là đã upload file thành công nhưng có vẻ như đoạn mã không chạy. Mình sẽ thừ dùng Path Traversal để xem có giống như bài ba không nhé.
+  <img width="1491" height="810" alt="image" src="https://github.com/user-attachments/assets/c559b6a7-9f6a-42a0-b3b6-30af3e39b314" />
+
+- Sau khi thử các payload của Path Traversal thì tôi vẫn không rời khỏi thư mục avatars và đoạn code php vẫn không hề chạy nên tôi sẽ research.
+- Sau khi tìm hiểu và xem hint của bài thì tôi biết rằng sever đã chặn file php và cả việc thực thi file php nên tôi cần phải upload thêm một file nữa
+- Quay lại Burpsuite, tôi sẽ thực hiện các thay đổi sau:
+    - Đổi tham số filename thành `.htaccess`
+    - Đổi Content Type thành `text/plain`
+    - Và cuối cùng là thêm đoạn code `AddType application/x-httpd-php .shell`
+  <img width="1492" height="811" alt="image" src="https://github.com/user-attachments/assets/3b0e6033-f92a-4435-b887-b684afa0c71b" />
+
+- Sau khi upload file `.htaccess` thành công, tôi sẽ nhấn quay lại trong repeater và sửa đuôi jpg thành file .shell và gửi. Sau khi gửi, trở lại trình duyệt của BurpSuite và reload lại trang web, cuối cùng mở HTTP History để lấy chuỗi bí mật.
+  <img width="1496" height="647" alt="image" src="https://github.com/user-attachments/assets/619441cd-c48e-4e41-9518-205e226ace24" />
+
+### Giải thích
