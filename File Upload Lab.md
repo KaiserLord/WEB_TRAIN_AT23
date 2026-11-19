@@ -94,3 +94,20 @@
   <img width="1496" height="647" alt="image" src="https://github.com/user-attachments/assets/619441cd-c48e-4e41-9518-205e226ace24" />
 
 ### Giải thích
+- Bài lab này khác các bài lab trước, trang web đã từ chối upload file php và chỉ cho phép upload các file khác. Mặc dù đã giải quyết được vấn đề upload, nhưng có một vấn đề khác là sever chưa giải quyết được các file đã được lưu. Câu hỏi đặt ra là nếu ta upload một file không phải php nhưng file đó vẫn có thể chạy được code php thì liệu ta có thể lấy được bí mật đó không? Và câu trả lời là hoàn toàn có thể giống như cách mà chúng ta đã làm ở trên. Đến đây bạn sẽ thắc mắc là tại sao tôi có thể làm được đúng không? Đáp án là nhờ file `.htaccess`
+- `.htaccess` (viết tắt của hypertext access) là một file cấu hình dùng cho máy chủ web Apache. File này cho phép bạn thay đổi cách server hoạt động ngay trong thư mục website, mà không cần đụng vào file cấu hình chính của server. Ngoài ra, nó còn có một vài đặc điểm sau:
+  - Nó là file text thường, đặt trong một thư mục cụ thể.
+  - Luật ghi trong đó chỉ áp dụng cho thư mục đó và các thư mục con.
+  - Apache tự động đọc file này mỗi khi có người truy cập vào thư mục đó mà không cần khởi động lại server.
+- Apache có cơ chế : khi nhận request đến một file, nó phải xác định nên xử lý file đó bằng cách nào. Thông thường, phần mở rộng file và cấu hình server sẽ giúp nó xác định cách xử lý và `.htaccess` cho phép điều chỉnh một số quy tắc trong quá trình Apache phân loại và xử lý tài nguyên. Ngoài ra thì `.htaccess` còn có nhiều công dụng khác, bạn có thể tự tìm hiểu thêm nhé
+- Vì file `.htaccess` không nằm trong danh sách file bị chặn nên bạn có thể upload nó một cách thoả mái. Lúc này, `.htaccess` đóng vai trò “người đưa thư” để nói riêng với Apache trong thư mục /files/avatars/ rằng: “Từ giờ, bất cứ file nào có đuôi `.shell` trong thư mục này, hãy coi nó như file PHP và chạy nó, đừng chỉ hiển thị nội dung thô.” thông qua câu lệnh
+  ```
+  AddType application/x-httpd-php .shell
+  ```
+- Tại sao sau đó file `.shell` lại chạy được như PHP? Bình thường, Apache phân biệt file bằng đuôi theo kiểu “MIME type”. Ví dụ
+  - Khi Apache nhận đuôi file là html thì Apache sẽ hiểu Content Type của nó là: `text/html` và gửi thẳng ra trình duyệt để đọc
+  - Tương tự, khi nhận đuôi file là `.php` thì Apache sẽ hiểu Content Type của nó là: `application/x-httpd-php` và 	đưa cho module `mod_php` xử lý trước, chạy code, rồi mới trả kết quả
+- Chính ánh xạ “đuôi file → loại MIME” này quyết định file có bị thực thi hay chỉ bị đọc thô. Lúc này, file `.htaccess` cho phép ghi đè chính ánh xạ đó thông qua câu lệnh `AddType application/x-httpd-php .shell`. Apache lúc này không còn phân biệt `.shell` với `.php nữa — với nó, hai đuôi này cùng một loại nội dung.
+- Vì server đã có sẵn module mod_php cài đặt từ trước, module này được Apache “giao việc” mỗi khi gặp file loại `application/x-httpd-php`. mod_php đọc code bên trong, thấy `<?php file_get_contents(...) ?>`, thực thi đoạn code đó và trả về nội dung.
+
+### 5. 
