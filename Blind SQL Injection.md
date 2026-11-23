@@ -1,7 +1,7 @@
 ## Đây là bảng dịch từ tiếng anh sang tiếng việt về Blind Injection của PortSwigger
 
 ### 1. Blind SQL Injection là gì?
-- Blind SQL injection xảy ra khi một ứng dụng có lỗ hổng SQL injection, nhưng các phản hồi HTTP của ứng dụng không chứa kết quả của truy vấn SQL liên quan hoặc thông tin chi tiết về bất kỳ lỗi cơ sở dữ liệu nào.
+- Blind SQL injection xảy ra khi một ứng dụng có lỗ hổng SQL injection, nhưng các HTTP Response của ứng dụng không chứa kết quả của truy vấn SQL liên quan hoặc thông tin chi tiết về bất kỳ lỗi cơ sở dữ liệu nào.
 - Nhiều kỹ thuật như các cuộc tấn công `UNION` không hiệu quả với các lỗ hổng blind SQL injection. Điều này là do chúng phụ thuộc vào khả năng nhìn thấy kết quả của truy vấn được chèn vào trong các phản hồi của ứng dụng. Tuy nhiên, vẫn có thể khai thác blind SQL injection để truy cập dữ liệu trái phép, nhưng phải sử dụng các kỹ thuật khác.
 ### 2. Khai thác SQL Injection bằng kích hoạt các phản hồi có điều kiện
 - Hãy xem xét một ứng dụng sử dụng cookie theo dõi (tracking cookie) để thu thập dữ liệu phân tích về việc sử dụng ứng dụng. Các yêu cầu gửi đến ứng dụng bao gồm một header cookie như sau:
